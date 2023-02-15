@@ -1,328 +1,244 @@
-import React from "react";
-export class Card extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			active: false,
-			move: false,
-			limit: false,
-			mouseStartPosX: null,
-			mouseStartPosY: null,
-			mouseCurrPosX: null,
-			mouseCurrPosY: null,
-			Posx: null,
-			Posy: null,
-			k: 0.2,
-			restX: 0,
-			restY: 0,
-			fx: 0,
-			fy: 0,
-			ax: 0,
-			ay: 0,
-			vx: 0.0,
-			vy: 0.0,
-			mass: 0.7,
-			damping: 0.8
-		};
-		this.handleDown = this.handleDown.bind(this);
-		this.handleUp = this.handleUp.bind(this);
-		this.handleMove = this.handleMove.bind(this);
-		this.animate = this.animate.bind(this);
-		this.updateCard = this.updateCard.bind(this);
-		this.handleTouchStart = this.handleTouchStart.bind(this);
-		this.handleTouchEnd = this.handleTouchEnd.bind(this);
-		this.handleTouchMove = this.handleTouchMove.bind(this);
-	}
-
-	componentDidMount() {
-		this.animate();
-	}
-
-	handleDown(e) {
-		this.setState({
-			move: true,
-			active: true,
-			mouseStartPosX: e.clientX,
-			mouseStartPosY: e.clientY
-		});
-	}
-
-	handleTouchStart(e) {
-		e.persist();
-		this.setState({
-			move: true,
-			active: true,
-			mouseStartPosX: e.touches[0].screenX,
-			mouseStartPosY: e.touches[0].screenY
-		});
-		console.log(this.state.mouseStartPosX);
-	}
-
-	handleMove(e) {
-		if (!this.state.limit) {
-			if (this.state.move) {
-				let mouseCurrPosX = e.clientX;
-				let mouseCurrPosY = e.clientY;
-				let Posx = mouseCurrPosX - this.state.mouseStartPosX;
-				let Posy = mouseCurrPosY - this.state.mouseStartPosY;
-				let el = document.getElementById("card" + this.props.no);
-				let height = window.innerHeight;
-				let width = window.innerWidth;
-				let maxX = width - width * 20 / 100;
-				function map_range(value, low1, high1, low2, high2) {
-					return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
-				}
-				let mouseRange = mouseCurrPosX;
-				if (mouseRange < width / 2) {
-					mouseRange = width - mouseRange;
-				}
-				let damping = map_range(
-					mouseRange,
-					width / 2,
-					width - width * 10 / 100,
-					0.6,
-					0.8
-				);
-
-				this.setState({
-					Posx,
-					Posy,
-					damping,
-					mouseCurrPosX,
-					mouseCurrPosY
-				});
-
-				if (mouseCurrPosX > width - width * 20 / 100) {
-					let restX, restY;
-					if (mouseCurrPosX > width / 2) {
-						restX = this.state.Posx * 5;
-					} else {
-						restX = -this.state.Posx * 5;
-					}
-					if (mouseCurrPosY > height / 2) {
-						restY = this.state.Posy * 5;
-					} else {
-						restY = this.state.Posy * 5;
-					}
-					let limit = true;
-					let move = false;
-					let damping = 0.06;
-					this.setState(
-						{
-							restX,
-							restY,
-							limit,
-							move,
-							damping
-						},
-						() => {
-							setTimeout(() => {
-								window.cancelAnimationFrame(this.animate);
-							}, 10);
-						}
-					);
-				} else if (mouseCurrPosX < width * 20 / 100) {
-					let restX, restY;
-					if (mouseCurrPosX > width / 2) {
-						restX = -this.state.Posx * 5;
-					} else {
-						restX = this.state.Posx * 5;
-					}
-					if (mouseCurrPosY > height / 2) {
-						restY = this.state.Posy * 5;
-					} else {
-						restY = this.state.Posy * 5;
-					}
-					let limit = true;
-					let move = false;
-					let damping = 0.06;
-					this.setState({
-						restX,
-						restY,
-						limit,
-						move,
-						damping
-					});
-				}
-			}
-		}
-	}
-
-	handleTouchMove(e) {
-		e.persist();
-		if (!this.state.limit) {
-			if (this.state.move) {
-				let mouseCurrPosX = e.touches[0].screenX;
-				let mouseCurrPosY = e.touches[0].screenY;
-				let Posx = mouseCurrPosX - this.state.mouseStartPosX;
-				let Posy = mouseCurrPosY - this.state.mouseStartPosY;
-				let el = document.getElementById("card" + this.props.no);
-				let height = window.innerHeight;
-				let width = window.innerWidth;
-				let maxX = width - width * 20 / 100;
-				function map_range(value, low1, high1, low2, high2) {
-					return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
-				}
-				let mouseRange = mouseCurrPosX;
-				if (mouseRange < width / 2) {
-					mouseRange = width - mouseRange;
-				}
-				let damping = map_range(
-					mouseRange,
-					width / 2,
-					width - width * 10 / 100,
-					0.6,
-					0.8
-				);
-
-				this.setState({
-					Posx,
-					Posy,
-					damping,
-					mouseCurrPosX,
-					mouseCurrPosY
-				});
-
-				if (mouseCurrPosX > width - width * 10 / 100) {
-					let restX, restY;
-					if (mouseCurrPosX > width / 2) {
-						restX = this.state.Posx * 5;
-					} else {
-						restX = -this.state.Posx * 5;
-					}
-					if (mouseCurrPosY > height / 2) {
-						restY = this.state.Posy * 5;
-					} else {
-						restY = this.state.Posy * 5;
-					}
-					let limit = true;
-					let move = false;
-					let damping = 0.08;
-					this.setState(
-						{
-							restX,
-							restY,
-							limit,
-							move,
-							damping
-						},
-						() => {
-							setTimeout(() => {
-								window.cancelAnimationFrame(this.animate);
-							}, 10);
-						}
-					);
-				} else if (mouseCurrPosX < width * 10 / 100) {
-					let restX, restY;
-					if (mouseCurrPosX > width / 2) {
-						restX = -this.state.Posx * 5;
-					} else {
-						restX = this.state.Posx * 5;
-					}
-					if (mouseCurrPosY > height / 2) {
-						restY = this.state.Posy * 5;
-					} else {
-						restY = this.state.Posy * 5;
-					}
-					let limit = true;
-					let move = false;
-					let damping = 0.08;
-					this.setState({
-						restX,
-						restY,
-						limit,
-						move,
-						damping
-					});
-				}
-			}
-		}
-	}
-
-	handleUp() {
-		this.setState({
-			move: false
-		});
-	}
-
-	handleTouchEnd() {
-		this.setState({
-			move: false
-		});
-	}
-
-	updateCard() {
-		if (!this.state.move) {
-			this.setState(
-				{
-					fx: -this.state.k * (this.state.Posx - this.state.restX),
-					fy: -this.state.k * (this.state.Posy - this.state.restY)
-				},
-				() => {
-					this.setState(
-						{
-							ax: this.state.fx / this.state.mass,
-							ay: this.state.fy / this.state.mass
-						},
-						() => {
-							this.setState(
-								{
-									vx: this.state.damping * (this.state.vx + this.state.ax),
-									vy: this.state.damping * (this.state.vy + this.state.ay)
-								},
-								() => {
-									this.setState({
-										Posx: this.state.Posx + this.state.vx,
-										Posy: this.state.Posy + this.state.vy
-									});
-								}
-							);
-						}
-					);
-				}
-			);
-		}
-	}
-
-	animate() {
-		let el = document.getElementById("card" + this.props.no);
-		if (
-			this.state.Posx > window.innerWidth + 400 ||
-			this.state.Posx < -window.innerWidth - 400
-		) {
-			cancelAnimationFrame(this.animate);
+import React, { useState, useCallback , useEffect} from "react";
+export const Card = props => {
+  const [active, setActive] = useState(false);
+  const [move, setMove] = useState(false);
+  const [limit, setLimit] = useState(false);
+  const [mouseStartPosX, setMouseStartPosX] = useState(null);
+  const [mouseStartPosY, setMouseStartPosY] = useState(null);
+  const [mouseCurrPosX, setMouseCurrPosX] = useState(null);
+  const [mouseCurrPosY, setMouseCurrPosY] = useState(null);
+  const [Posx, setPosx] = useState(null);
+  const [Posy, setPosy] = useState(null);
+  const [k, setK] = useState(0.2);
+  const [restX, setRestX] = useState(0);
+  const [restY, setRestY] = useState(0);
+  const [fx, setFx] = useState(0);
+  const [fy, setFy] = useState(0);
+  const [ax, setAx] = useState(0);
+  const [ay, setAy] = useState(0);
+  const [vx, setVx] = useState(0.0);
+  const [vy, setVy] = useState(0.0);
+  const [mass, setMass] = useState(0.7);
+	const [damping, setDamping] = useState(0.8);
+	
+	const animate =() => {
+		let el = document.getElementById("card" + props.no);
+	
+		if (Posx > window.innerWidth + 400 || Posx < -window.innerWidth - 400) {
+			cancelAnimationFrame(animate);
+			setActive(false)
 		} else {
-			requestAnimationFrame(this.animate);
+		  requestAnimationFrame(animate);
 		}
-		if (this.state.active) {
-			el.style.transform =
-				"translate(" +
-				this.state.Posx +
-				"px" +
-				"," +
-				this.state.Posy +
-				"px) rotate(" +
-				this.state.Posx / 9 +
-				"deg) perspective(800px)";
-			this.updateCard();
+	
+		if (active) {
+		  el.style.transform = "translate(" + Posx + "px" + "," + Posy + "px) rotate(" + Posx / 9 + "deg) perspective(800px)";
+		  updateCard();
 		}
-	}
+	  };
+  useEffect(() => {
+    animate();
+  });
+  const handleDown = useCallback((e) => {
+    setMove(true);
+    setActive(true);
+    setMouseStartPosX(e.clientX);
+    setMouseStartPosY(e.clientY);
+  });
+  const handleTouchStart = useCallback((e) => {
+    e.persist();
+    setMove(true);
+    setActive(true);
+    setMouseStartPosX(e.touches[0].screenX);
+    setMouseStartPosY(e.touches[0].screenY);
+    console.log(mouseStartPosX);
+  });
+  const handleMove = useCallback((e) => {
+    if (!limit) {
+      if (move) {
+        let mouseCurrPosX = e.clientX;
+        let mouseCurrPosY = e.clientY;
+        let Posx = mouseCurrPosX - mouseStartPosX;
+        let Posy = mouseCurrPosY - mouseStartPosY;
+        let el = document.getElementById("card" + props.no);
+        let height = window.innerHeight;
+        let width = window.innerWidth;
+        let maxX = width - width * 20 / 100;
 
-	render() {
-		return (
-			<div
-				id={"card" + this.props.no}
-				className={"card color" + this.props.no}
-				onMouseDown={this.handleDown}
-				onMouseMove={this.handleMove}
-				onMouseUp={this.handleUp}
-				onMouseLeave={this.handleUp}
-				onTouchStart={this.handleTouchStart}
-				onTouchMove={this.handleTouchMove}
-				onTouchEnd={this.handleTouchEnd}
-			>
-				<div className="text">DRAG THE CARD LEFT OR RIGHT</div>
-			</div>
-		);
+        function map_range(value, low1, high1, low2, high2) {
+          return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+        }
+
+        let mouseRange = mouseCurrPosX;
+
+        if (mouseRange < width / 2) {
+          mouseRange = width - mouseRange;
+        }
+
+        let damping = map_range(mouseRange, width / 2, width - width * 10 / 100, 0.6, 0.8);
+        setPosx(Posx);
+        setPosy(Posy);
+        setDamping(damping);
+        setMouseCurrPosX(mouseCurrPosX);
+        setMouseCurrPosY(mouseCurrPosY);
+
+        if (mouseCurrPosX > width - width * 20 / 100) {
+          let restX, restY;
+
+          if (mouseCurrPosX > width / 2) {
+            restX = Posx * 5;
+          } else {
+            restX = -Posx * 5;
+          }
+
+          if (mouseCurrPosY > height / 2) {
+            restY = Posy * 5;
+          } else {
+            restY = Posy * 5;
+          }
+
+          let limit = true;
+          let move = false;
+          let damping = 0.06;
+          setRestX(restX);
+          setRestY(restY);
+          setLimit(limit);
+          setMove(move);
+			setDamping(damping);
+			setTimeout(() => {
+				window.cancelAnimationFrame(animate);
+			}, 10);
+        } else if (mouseCurrPosX < width * 20 / 100) {
+          let restX, restY;
+
+          if (mouseCurrPosX > width / 2) {
+            restX = -Posx * 5;
+          } else {
+            restX = Posx * 5;
+          }
+
+          if (mouseCurrPosY > height / 2) {
+            restY = Posy * 5;
+          } else {
+            restY = Posy * 5;
+          }
+
+          let limit = true;
+          let move = false;
+          let damping = 0.06;
+          setRestX(restX);
+          setRestY(restY);
+          setLimit(limit);
+          setMove(move);
+          setDamping(damping);
+        }
+      }
+    }
+  });
+  const handleTouchMove = useCallback((e) => {
+    e.persist();
+
+    if (!limit) {
+      if (move) {
+        let mouseCurrPosX = e.touches[0].screenX;
+        let mouseCurrPosY = e.touches[0].screenY;
+        let Posx = mouseCurrPosX - mouseStartPosX;
+        let Posy = mouseCurrPosY - mouseStartPosY;
+        let el = document.getElementById("card" + props.no);
+        let height = window.innerHeight;
+        let width = window.innerWidth;
+        let maxX = width - width * 20 / 100;
+
+        function map_range(value, low1, high1, low2, high2) {
+          return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+        }
+
+        let mouseRange = mouseCurrPosX;
+
+        if (mouseRange < width / 2) {
+          mouseRange = width - mouseRange;
+        }
+
+        let damping = map_range(mouseRange, width / 2, width - width * 10 / 100, 0.6, 0.8);
+        setPosx(Posx);
+        setPosy(Posy);
+        setDamping(damping);
+        setMouseCurrPosX(mouseCurrPosX);
+        setMouseCurrPosY(mouseCurrPosY);
+
+        if (mouseCurrPosX > width - width * 10 / 100) {
+          let restX, restY;
+
+          if (mouseCurrPosX > width / 2) {
+            restX = Posx * 5;
+          } else {
+            restX = -Posx * 5;
+          }
+
+          if (mouseCurrPosY > height / 2) {
+            restY = Posy * 5;
+          } else {
+            restY = Posy * 5;
+          }
+
+          let limit = true;
+          let move = false;
+          let damping = 0.08;
+          setRestX(restX);
+          setRestY(restY);
+          setLimit(limit);
+          setMove(move);
+			setDamping(damping);
+			setTimeout(() => {
+				window.cancelAnimationFrame(animate);
+			}, 10);
+        } else if (mouseCurrPosX < width * 10 / 100) {
+          let restX, restY;
+
+          if (mouseCurrPosX > width / 2) {
+            restX = -Posx * 5;
+          } else {
+            restX = Posx * 5;
+          }
+
+          if (mouseCurrPosY > height / 2) {
+            restY = Posy * 5;
+          } else {
+            restY = Posy * 5;
+          }
+
+          let limit = true;
+          let move = false;
+          let damping = 0.08;
+          setRestX(restX);
+          setRestY(restY);
+          setLimit(limit);
+          setMove(move);
+          setDamping(damping);
+        }
+      }
+    }
+  });
+  const handleUp = useCallback(() => {
+    setMove(false);
+  });
+  const handleTouchEnd = useCallback(() => {
+	  setMove(false);
+  });
+  const updateCard = useCallback(() => {
+    if (!move) {
+      setFx(-k * (Posx - restX));
+      setFy(-k * (Posy - restY));
+	  setAx(fx/mass);
+		setAy(fy / mass);
+		setVx(damping* (vx+ax))
+		setVy(damping * (vy + ay))
+		setPosx(Posx+vx)
+		setPosy(Posy+vy)
 	}
-}
+  });
+ 
+  return <div id={"card" + props.no} className={"card color" + props.no} onMouseDown={handleDown} onMouseMove={handleMove} onMouseUp={handleUp} onMouseLeave={handleUp} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
+				<div className="text">DRAG THE CARD LEFT OR RIGHT</div>
+			</div>;
+};
