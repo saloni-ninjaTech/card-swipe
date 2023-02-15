@@ -11,17 +11,21 @@ export const Card = props => {
   const [Posy, setPosy] = useState(null);
   const [k, setK] = useState(0.2);
   const [restX, setRestX] = useState(0);
-  const [restY, setRestY] = useState(0);
-  const [fx, setFx] = useState(0);
-  const [fy, setFy] = useState(0);
-  const [ax, setAx] = useState(0);
-  const [ay, setAy] = useState(0);
-  const [vx, setVx] = useState(0.0);
-  const [vy, setVy] = useState(0.0);
-  const [mass, setMass] = useState(0.7);
+	const [restY, setRestY] = useState(0);
+	let axis = {
+		fx: 0,
+		fy: 0,
+		ax: 0,
+		ay: 0,
+		vx: 0.0,
+		vy: 0.0
+	}
+	const mass = 0.7;
+
 	const [damping, setDamping] = useState(0.8);
 	
-	const animate =() => {
+	const animate = () => {
+		
 		let el = document.getElementById("card" + props.no);
 	
 		if (Posx > window.innerWidth + 400 || Posx < -window.innerWidth - 400) {
@@ -38,7 +42,7 @@ export const Card = props => {
 	  };
   useEffect(() => {
     animate();
-  });
+  }, [animate]);
   const handleDown = useCallback((e) => {
     setMove(true);
     setActive(true);
@@ -105,9 +109,9 @@ export const Card = props => {
           setLimit(limit);
           setMove(move);
 			setDamping(damping);
-			setTimeout(() => {
-				window.cancelAnimationFrame(animate);
-			}, 10);
+			// setTimeout(() => {
+			// 	window.cancelAnimationFrame(animate);
+			// }, 10);
         } else if (mouseCurrPosX < width * 20 / 100) {
           let restX, restY;
 
@@ -189,9 +193,9 @@ export const Card = props => {
           setLimit(limit);
           setMove(move);
 			setDamping(damping);
-			setTimeout(() => {
-				window.cancelAnimationFrame(animate);
-			}, 10);
+			// setTimeout(() => {
+			// 	window.cancelAnimationFrame(animate);
+			// }, 10);
         } else if (mouseCurrPosX < width * 10 / 100) {
           let restX, restY;
 
@@ -220,22 +224,27 @@ export const Card = props => {
     }
   });
   const handleUp = useCallback(() => {
-    setMove(false);
+	  setMove(false);	  
   });
   const handleTouchEnd = useCallback(() => {
 	  setMove(false);
+	  setActive(false)
+
   });
   const updateCard = useCallback(() => {
-    if (!move) {
-      setFx(-k * (Posx - restX));
-      setFy(-k * (Posy - restY));
-	  setAx(fx/mass);
-		setAy(fy / mass);
-		setVx(damping* (vx+ax))
-		setVy(damping * (vy + ay))
-		setPosx(Posx+vx)
-		setPosy(Posy+vy)
-	}
+	  if (!move) {
+		  const localMapAxis = {
+			  fx: -k * (Posx - restX),
+			  fy: -k * (Posy - restY),
+			  ax: axis.fx / mass,
+			  ay: axis.fy / mass,
+			  vx: damping * (axis.vx + axis.ax),
+			  vy: damping * (axis.vy + axis.ay)
+		  }
+		  axis = localMapAxis;
+		setPosx(Posx+axis.vx)
+		setPosy(Posy + axis.vy)		
+	  }
   });
  
   return <div id={"card" + props.no} className={"card color" + props.no} onMouseDown={handleDown} onMouseMove={handleMove} onMouseUp={handleUp} onMouseLeave={handleUp} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
